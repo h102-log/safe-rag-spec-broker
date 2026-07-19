@@ -1,0 +1,25 @@
+# Phase 0-rag-core dependencies only.
+# 버전 핀은 재량 — pip이 설치 가능한 조합으로 해석하도록 미지정.
+
+# API
+fastapi
+uvicorn[standard]
+pydantic-settings
+python-dotenv
+
+# Ingest: 파싱 / 청킹 / 임베딩
+docling
+FlagEmbedding
+langchain-text-splitters
+tiktoken
+
+# Vector DB
+psycopg[binary]
+pgvector
+
+# Observability
+langfuse
+
+# Tests
+pytest
+httpx

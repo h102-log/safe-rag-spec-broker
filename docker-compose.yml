@@ -1,0 +1,21 @@
+# ponytail: pgvector만. Langfuse 스택(ClickHouse·Redis·MinIO)은 관측 페이즈에서 추가.
+# 이유: 이 페이즈는 pgvector만 읽고 쓴다. 쓰지 않는 서비스를 띄우는 건 낭비.
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:
