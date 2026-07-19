@@ -1,0 +1,12 @@
+{
+  "project": "domain-rag-eval-obs",
+  "phase": "0-rag-core",
+  "steps": [
+    { "step": 0, "name": "project-setup", "status": "pending" },
+    { "step": 1, "name": "parsing", "status": "pending" },
+    { "step": 2, "name": "chunking", "status": "pending" },
+    { "step": 3, "name": "embedding", "status": "pending" },
+    { "step": 4, "name": "indexing", "status": "pending" },
+    { "step": 5, "name": "retrieval", "status": "pending" }
+  ]
+}
