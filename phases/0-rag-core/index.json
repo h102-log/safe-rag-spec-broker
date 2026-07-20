@@ -28,7 +28,10 @@
     {
       "step": 3,
       "name": "embedding",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-07-20T20:14:48+0900",
+      "completed_at": "2026-07-20T20:17:21+0900",
+      "summary": "교체 가능한 임베딩 인터페이스 — app/ingest/embed.py(Embedder Protocol{dim, embed_texts(texts)->list[list[float]]} + BGEM3Embedder(dim=1024, FlagEmbedding BGEM3FlagModel dense_vecs, 모델 내부 L2 정규화 재사용) + get_embedder() 팩토리는 config.embedding_model 기반). ADR-005 교체성: 색인/검색은 구체 클래스가 아닌 Embedder에만 의존. 무거운 FlagEmbedding/torch import는 BGEM3Embedder.__init__ 내부로 지연(parse/chunk 선례)해 계약 테스트가 모델 다운로드 없이 실행. tests/test_embed.py: 계약(FakeEmbedder dim=8로 개수·벡터길이==dim) 1 passed + integration(@pytest.mark.integration, 실제 BGE-M3 로드→dim/길이 1024·float) opt-in deselected. 계측: embed는 온라인 호출 지점(retrieve step5)의 @observe로 감싸는 게 레이어 분리에 맞아 여기선 데코레이터 미부착."
     },
     {
       "step": 4,
