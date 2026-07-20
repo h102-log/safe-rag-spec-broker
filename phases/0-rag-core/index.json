@@ -22,7 +22,7 @@
       "name": "chunking",
       "status": "completed",
       "started_at": "2026-07-20T19:59:24+0900",
-      "completed_at": "2026-07-20T20:20:00+0900",
+      "completed_at": "2026-07-20T20:10:28+0900",
       "summary": "토큰 기준 청킹 — app/ingest/chunk.py(Chunk(text,source,page,chunk_index) dataclass + chunk_docs(docs, chunk_size=512, overlap=64)). LangChain RecursiveCharacterTextSplitter.from_tiktoken_encoder(encoding_name='cl100k_base')로 문자수가 아닌 토큰 기준 분할, overlap 64. provenance(source/page)를 각 Chunk로 전파하고 chunk_index는 source별 0부터 리셋. tests/test_chunk.py: 토큰수≤chunk_size(tiktoken 카운트)·인접 overlap·provenance 전파·chunk_index 연속 검증, 2 passed. 부수 변경: app/ingest/parse.py의 docling import를 _converter() 내부로 지연(동작 불변) — 순수 dataclass ParsedDoc이 무거운 docling/transformers 스택 없이 import되도록 해 chunk가 파싱 의존성에서 분리됨."
     },
     {
