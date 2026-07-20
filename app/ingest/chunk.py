@@ -20,7 +20,7 @@ class Chunk:
     text: str
     source: str
     page: int | None
-    chunk_index: int     # source 내 순번 (0부터)
+    chunk_index: int     # source 내 순번 (0부터, 페이지를 넘어가도 연속)
 
 
 def chunk_docs(
@@ -31,10 +31,15 @@ def chunk_docs(
         chunk_size=chunk_size,
         chunk_overlap=overlap,
     )
+    # chunk_index는 source별 연속 카운터. 한 source가 페이지별 여러 ParsedDoc로
+    # 쪼개져 와도 인덱스가 겹치지 않아 UNIQUE(source, chunk_index) 멱등성이 유지된다.
     chunks: list[Chunk] = []
+    next_index: dict[str, int] = {}
     for doc in docs:
-        for i, piece in enumerate(splitter.split_text(doc.text)):
+        for piece in splitter.split_text(doc.text):
+            i = next_index.get(doc.source, 0)
             chunks.append(
                 Chunk(text=piece, source=doc.source, page=doc.page, chunk_index=i)
             )
+            next_index[doc.source] = i + 1
     return chunks

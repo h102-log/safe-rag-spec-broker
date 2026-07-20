@@ -27,9 +27,22 @@ def _converter() -> "DocumentConverter":
     return DocumentConverter()
 
 
+def _to_parsed_docs(doc, source: str) -> list[ParsedDoc]:
+    """DoclingDocument → 페이지 단위 ParsedDoc(인용 provenance).
+
+    doc.pages가 있으면(PDF 등) 페이지별로 쪼개 page를 채운다. 없으면
+    (DOCX 등 flow 문서 — Docling이 pages={}로 준다) 문서 전체를 page=None 1개로.
+    """
+    if not doc.pages:
+        return [ParsedDoc(text=doc.export_to_markdown(), source=source, page=None)]
+    out: list[ParsedDoc] = []
+    for page_no in sorted(doc.pages):
+        text = doc.export_to_markdown(page_no=page_no)
+        if text.strip():
+            out.append(ParsedDoc(text=text, source=source, page=page_no))
+    return out
+
+
 def parse_file(path: str | Path) -> list[ParsedDoc]:
-    result = _converter().convert(path)
-    text = result.document.export_to_markdown()
-    # ponytail: 문서 1개=1 ParsedDoc(page=None). 페이지 단위 provenance는
-    # 인용에서 페이지가 실제로 필요해지는 step 4/5에서 분리.
-    return [ParsedDoc(text=text, source=str(path), page=None)]
+    doc = _converter().convert(path).document
+    return _to_parsed_docs(doc, str(path))
