@@ -36,7 +36,10 @@
     {
       "step": 4,
       "name": "indexing",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-07-20T20:18:38+0900",
+      "completed_at": "2026-07-20T20:24:41+0900",
+      "summary": "pgvector dense 색인 — app/ingest/index.py(ensure_schema: CREATE EXTENSION vector + chunks(id bigserial pk, source, page, chunk_index, text, embedding vector(1024)) + (source,chunk_index) UNIQUE + HNSW vector_cosine_ops 인덱스(ADR-001), 전부 IF NOT EXISTS 멱등; index_chunks(chunks, embedder, conn)→embed_texts 후 ON CONFLICT (source,chunk_index) DO UPDATE upsert, 행수 반환) + app/ingest/__main__.py(python -m app.ingest --source <dir>: rglob 순회 각 파일 parse→chunk→embed→index). 멱등성 CRITICAL: 재색인해도 UNIQUE+upsert로 행 중복 없음. index.py는 conn만 인자로 받아 psycopg import를 CLI로 격리(parse/chunk/embed 지연로드 선례) — 소비 측이 DB 드라이버 없이 import 가능. 벡터는 '[..]'::vector 텍스트 캐스팅으로 드라이버 어댑터 등록 없이 전달. tests/test_index.py(@integration, FakeEmbedder dim=1024): ensure_schema→5 Chunk index→count==5→같은 입력 재색인→여전히 5, psycopg/DB 미가용 시 skip. AC 검증: 로컬 5432를 타 프로젝트 postgres(pgvector 아님)가 점유해 동등 pgvector를 5433에 띄우고 DATABASE_URL override로 실행, 1 passed. 금지사항 준수: search/query·BM25·리랭킹 없음(step5/ADR-002), INSERT-only 아님."
     },
     {
       "step": 5,
