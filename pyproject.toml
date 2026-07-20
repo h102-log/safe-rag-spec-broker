@@ -1,0 +1,6 @@
+[tool.pytest.ini_options]
+pythonpath = ["."]
+markers = [
+    "integration: DB 등 외부 인프라가 필요한 테스트",
+]
+addopts = "-m 'not integration'"

@@ -1,12 +1,54 @@
 {
   "project": "domain-rag-eval-obs",
   "phase": "0-rag-core",
+  "created_at": "2026-07-19T23:16:49+0900",
   "steps": [
-    { "step": 0, "name": "project-setup", "status": "pending" },
-    { "step": 1, "name": "parsing", "status": "pending" },
-    { "step": 2, "name": "chunking", "status": "pending" },
-    { "step": 3, "name": "embedding", "status": "pending" },
-    { "step": 4, "name": "indexing", "status": "pending" },
-    { "step": 5, "name": "retrieval", "status": "pending" }
-  ]
+    {
+      "step": 0,
+      "name": "project-setup",
+      "status": "completed",
+      "completed_at": "2026-07-19T23:16:49+0900",
+      "summary": "실행·테스트 뼈대 완성 — app/config.py(get_settings, pydantic-settings), app/api.py(GET /health→{status:ok}), observability/langfuse_setup.py(키 없으면 no-op observe; @observe·@observe(...) 모두 지원), docker-compose.yml(pgvector db만+healthcheck), requirements.txt/.env.example, pyproject.toml(integration 마커+addopts=-m 'not integration', pythonpath=['.']), tests/test_health.py 통과. __init__.py: app·app/ingest·app/retrieve·observability·tests. .gitignore에 .venv/·.env 추가."
+    },
+    {
+      "step": 1,
+      "name": "parsing",
+      "status": "completed",
+      "completed_at": "2026-07-20T19:50:49+0900",
+      "summary": "Docling DocumentConverter 파싱 — app/ingest/parse.py(parse_file→list[ParsedDoc(text,source,page)], export_to_markdown으로 표 markdown 구조 보존, DocumentConverter는 @lru_cache 재사용). provenance: source=원본경로 채움, page=None(문서1개=1 ParsedDoc; 페이지 단위 분할은 step4/5로 미룸). 픽스처 tests/fixtures/sample_table.docx(표 포함 DOCX, python-docx 생성) + tests/test_parse.py(표 셀 '보증기간'·'24개월' 보존·각 source 채워짐 assert) 통과. PDF 대신 DOCX 픽스처: Docling SimplePipeline로 모델 다운로드 없이 오프라인·결정적."
+    },
+    {
+      "step": 2,
+      "name": "chunking",
+      "status": "completed",
+      "started_at": "2026-07-20T19:59:24+0900",
+      "completed_at": "2026-07-20T20:10:28+0900",
+      "summary": "토큰 기준 청킹 — app/ingest/chunk.py(Chunk(text,source,page,chunk_index) dataclass + chunk_docs(docs, chunk_size=512, overlap=64)). LangChain RecursiveCharacterTextSplitter.from_tiktoken_encoder(encoding_name='cl100k_base')로 문자수가 아닌 토큰 기준 분할, overlap 64. provenance(source/page)를 각 Chunk로 전파하고 chunk_index는 source별 0부터 리셋. tests/test_chunk.py: 토큰수≤chunk_size(tiktoken 카운트)·인접 overlap·provenance 전파·chunk_index 연속 검증, 2 passed. 부수 변경: app/ingest/parse.py의 docling import를 _converter() 내부로 지연(동작 불변) — 순수 dataclass ParsedDoc이 무거운 docling/transformers 스택 없이 import되도록 해 chunk가 파싱 의존성에서 분리됨."
+    },
+    {
+      "step": 3,
+      "name": "embedding",
+      "status": "completed",
+      "started_at": "2026-07-20T20:14:48+0900",
+      "completed_at": "2026-07-20T20:18:37+0900",
+      "summary": "교체 가능한 임베딩 인터페이스 — app/ingest/embed.py(Embedder Protocol{dim, embed_texts(texts)->list[list[float]]} + BGEM3Embedder(dim=1024, FlagEmbedding BGEM3FlagModel dense_vecs, 모델 내부 L2 정규화 재사용) + get_embedder() 팩토리는 config.embedding_model 기반). ADR-005 교체성: 색인/검색은 구체 클래스가 아닌 Embedder에만 의존. 무거운 FlagEmbedding/torch import는 BGEM3Embedder.__init__ 내부로 지연(parse/chunk 선례)해 계약 테스트가 모델 다운로드 없이 실행. tests/test_embed.py: 계약(FakeEmbedder dim=8로 개수·벡터길이==dim) 1 passed + integration(@pytest.mark.integration, 실제 BGE-M3 로드→dim/길이 1024·float) opt-in deselected. 계측: embed는 온라인 호출 지점(retrieve step5)의 @observe로 감싸는 게 레이어 분리에 맞아 여기선 데코레이터 미부착."
+    },
+    {
+      "step": 4,
+      "name": "indexing",
+      "status": "completed",
+      "started_at": "2026-07-20T20:18:38+0900",
+      "completed_at": "2026-07-20T20:25:35+0900",
+      "summary": "pgvector dense 색인 — app/ingest/index.py(ensure_schema: CREATE EXTENSION vector + chunks(id bigserial pk, source, page, chunk_index, text, embedding vector(1024)) + (source,chunk_index) UNIQUE + HNSW vector_cosine_ops 인덱스(ADR-001), 전부 IF NOT EXISTS 멱등; index_chunks(chunks, embedder, conn)→embed_texts 후 ON CONFLICT (source,chunk_index) DO UPDATE upsert, 행수 반환) + app/ingest/__main__.py(python -m app.ingest --source <dir>: rglob 순회 각 파일 parse→chunk→embed→index). 멱등성 CRITICAL: 재색인해도 UNIQUE+upsert로 행 중복 없음. index.py는 conn만 인자로 받아 psycopg import를 CLI로 격리(parse/chunk/embed 지연로드 선례) — 소비 측이 DB 드라이버 없이 import 가능. 벡터는 '[..]'::vector 텍스트 캐스팅으로 드라이버 어댑터 등록 없이 전달. tests/test_index.py(@integration, FakeEmbedder dim=1024): ensure_schema→5 Chunk index→count==5→같은 입력 재색인→여전히 5, psycopg/DB 미가용 시 skip. AC 검증: 로컬 5432를 타 프로젝트 postgres(pgvector 아님)가 점유해 동등 pgvector를 5433에 띄우고 DATABASE_URL override로 실행, 1 passed. 금지사항 준수: search/query·BM25·리랭킹 없음(step5/ADR-002), INSERT-only 아님."
+    },
+    {
+      "step": 5,
+      "name": "retrieval",
+      "status": "completed",
+      "started_at": "2026-07-20T20:25:35+0900",
+      "completed_at": "2026-07-20T20:32:01+0900",
+      "summary": "dense 검색 + POST /query — app/retrieve/search.py(Retrieved(text,source,page,score) dataclass + search(query,*,top_k=5,conn=None,embedder=None): query 임베딩→pgvector cosine ANN 'ORDER BY embedding <=> %s::vector LIMIT top_k', score=1-distance. ADR-002 dense-only(BM25/하이브리드/리랭킹 없음). @observe(name='search')로 계측; conn 미주입 시에만 psycopg 지연 import+DATABASE_URL 연결(index.py 격리 선례), 주입 시 그 연결 사용) + app/api.py POST /query {question}→{results:[Retrieved...], trace_id}(@observe(name='query')로 계층형 trace, embedder는 Depends(get_embedder)로 주입해 테스트가 실제 BGE-M3 로드 없이 오버라이드) + observability/langfuse_setup.py get_trace_id()(활성 Langfuse trace id, no-op이면 None → uuid4 폴백; v3 get_client()/v2 langfuse_context 폴백). CRITICAL 준수: 온라인 경로 @observe 계측, provenance(source/page) 반환(인용), 생성/LLM 호출 없음(다음 페이즈). tests/test_query.py(@integration): FakeEmbedder(bag-of-chars dim=1024, non-zero라 cosine 유효) step4 경로로 3청크 색인→search가 '보증기간' 청크를 top_k 내 반환+provenance 검증→TestClient POST /query 200+results 비어있지 않음+trace_id 존재, DB 미가용 시 skip. AC: 5432를 타 프로젝트가 점유해 pgvector를 5433에 띄우고 DATABASE_URL override로 2 passed, 기본 스위트 56 passed/4 deselected(기존 테스트 무손상)."
+    }
+  ],
+  "completed_at": "2026-07-20T20:32:02+0900"
 }
