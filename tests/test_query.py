@@ -44,15 +44,15 @@ def indexed(conn):
 
 @pytest.mark.integration
 def test_search_returns_relevant_chunk_with_provenance(indexed):
-    results = search("보증기간이 얼마인가요", top_k=5, conn=indexed, embedder=FakeEmbedder())
+    results = search("보증기간이 얼마인가요", top_k=1, conn=indexed, embedder=FakeEmbedder())
 
     assert results, "검색 결과가 비어있으면 안 된다"
-    # 관련 청크(보증기간)가 top_k 안에 있어야 한다.
-    assert any("보증기간" in r.text for r in results)
-    # provenance(citation) 포함 — CLAUDE.md CRITICAL.
+    # top_k=1 — 존재가 아니라 순위를 검증: cosine 정렬이 관련 청크를 1등으로 올려야.
     top = results[0]
+    assert "보증기간" in top.text
+    # provenance(citation) 포함 — CLAUDE.md CRITICAL.
     assert top.source == "doc.docx"
-    assert top.page is not None
+    assert top.page == 1
     assert isinstance(top.score, float)
 
 
