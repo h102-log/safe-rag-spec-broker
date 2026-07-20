@@ -10,7 +10,13 @@
       "completed_at": "2026-07-19T23:16:49+0900",
       "summary": "실행·테스트 뼈대 완성 — app/config.py(get_settings, pydantic-settings), app/api.py(GET /health→{status:ok}), observability/langfuse_setup.py(키 없으면 no-op observe; @observe·@observe(...) 모두 지원), docker-compose.yml(pgvector db만+healthcheck), requirements.txt/.env.example, pyproject.toml(integration 마커+addopts=-m 'not integration', pythonpath=['.']), tests/test_health.py 통과. __init__.py: app·app/ingest·app/retrieve·observability·tests. .gitignore에 .venv/·.env 추가."
     },
-    { "step": 1, "name": "parsing", "status": "pending" },
+    {
+      "step": 1,
+      "name": "parsing",
+      "status": "completed",
+      "completed_at": "2026-07-20T19:50:49+0900",
+      "summary": "Docling DocumentConverter 파싱 — app/ingest/parse.py(parse_file→list[ParsedDoc(text,source,page)], export_to_markdown으로 표 markdown 구조 보존, DocumentConverter는 @lru_cache 재사용). provenance: source=원본경로 채움, page=None(문서1개=1 ParsedDoc; 페이지 단위 분할은 step4/5로 미룸). 픽스처 tests/fixtures/sample_table.docx(표 포함 DOCX, python-docx 생성) + tests/test_parse.py(표 셀 '보증기간'·'24개월' 보존·각 source 채워짐 assert) 통과. PDF 대신 DOCX 픽스처: Docling SimplePipeline로 모델 다운로드 없이 오프라인·결정적."
+    },
     { "step": 2, "name": "chunking", "status": "pending" },
     { "step": 3, "name": "embedding", "status": "pending" },
     { "step": 4, "name": "indexing", "status": "pending" },
