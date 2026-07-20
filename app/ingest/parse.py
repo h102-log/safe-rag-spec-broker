@@ -8,7 +8,8 @@ from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
-from docling.document_converter import DocumentConverter
+# docling은 무거운 ML 스택(transformers/torch)을 끌어온다. ParsedDoc만 쓰는
+# 하위 레이어(chunk 등)가 이를 로드하지 않도록 실제 파싱 시점까지 지연 import한다.
 
 
 @dataclass
@@ -19,8 +20,10 @@ class ParsedDoc:
 
 
 @lru_cache
-def _converter() -> DocumentConverter:
+def _converter() -> "DocumentConverter":
     # 파이프라인 로딩이 무거워 재사용(step 4 디렉토리 색인 루프에서 유효).
+    from docling.document_converter import DocumentConverter
+
     return DocumentConverter()
 
 
