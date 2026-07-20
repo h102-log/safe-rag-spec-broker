@@ -32,22 +32,6 @@ CHUNKS = [
 
 
 @pytest.fixture
-def conn():
-    psycopg = pytest.importorskip("psycopg")
-    from app.config import get_settings
-
-    try:
-        c = psycopg.connect(get_settings().database_url, connect_timeout=3)
-    except psycopg.OperationalError as e:
-        pytest.skip(f"pgvector DB 접속 불가: {e}")
-    yield c
-    with c.cursor() as cur:
-        cur.execute("DROP TABLE IF EXISTS chunks")
-    c.commit()
-    c.close()
-
-
-@pytest.fixture
 def indexed(conn):
     # step 4 색인 경로 재사용: ensure_schema → index_chunks.
     ensure_schema(conn)
