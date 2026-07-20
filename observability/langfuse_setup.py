@@ -40,3 +40,23 @@ def _resolve_observe():
 
 # import 시점에 1회 해석. 서버 부팅 시 .env가 로드된 뒤 app.api가 import되므로 충분.
 observe = _resolve_observe()
+
+
+def get_trace_id() -> str | None:
+    """활성 Langfuse trace의 id. 계측이 no-op(키 미설정/미설치)이면 None.
+
+    @observe 컨텍스트 안에서 호출해야 현재 trace가 잡힌다.
+    """
+    if observe is _noop_observe:
+        return None
+    try:
+        try:
+            from langfuse import get_client  # v3
+
+            return get_client().get_current_trace_id()
+        except ImportError:
+            from langfuse.decorators import langfuse_context  # v2
+
+            return langfuse_context.get_current_trace_id()
+    except Exception:
+        return None

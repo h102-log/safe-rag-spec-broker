@@ -44,7 +44,10 @@
     {
       "step": 5,
       "name": "retrieval",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-07-20T20:25:35+0900",
+      "completed_at": "2026-07-20T20:45:00+0900",
+      "summary": "dense 검색 + POST /query — app/retrieve/search.py(Retrieved(text,source,page,score) dataclass + search(query,*,top_k=5,conn=None,embedder=None): query 임베딩→pgvector cosine ANN 'ORDER BY embedding <=> %s::vector LIMIT top_k', score=1-distance. ADR-002 dense-only(BM25/하이브리드/리랭킹 없음). @observe(name='search')로 계측; conn 미주입 시에만 psycopg 지연 import+DATABASE_URL 연결(index.py 격리 선례), 주입 시 그 연결 사용) + app/api.py POST /query {question}→{results:[Retrieved...], trace_id}(@observe(name='query')로 계층형 trace, embedder는 Depends(get_embedder)로 주입해 테스트가 실제 BGE-M3 로드 없이 오버라이드) + observability/langfuse_setup.py get_trace_id()(활성 Langfuse trace id, no-op이면 None → uuid4 폴백; v3 get_client()/v2 langfuse_context 폴백). CRITICAL 준수: 온라인 경로 @observe 계측, provenance(source/page) 반환(인용), 생성/LLM 호출 없음(다음 페이즈). tests/test_query.py(@integration): FakeEmbedder(bag-of-chars dim=1024, non-zero라 cosine 유효) step4 경로로 3청크 색인→search가 '보증기간' 청크를 top_k 내 반환+provenance 검증→TestClient POST /query 200+results 비어있지 않음+trace_id 존재, DB 미가용 시 skip. AC: 5432를 타 프로젝트가 점유해 pgvector를 5433에 띄우고 DATABASE_URL override로 2 passed, 기본 스위트 56 passed/4 deselected(기존 테스트 무손상)."
     }
   ]
 }
