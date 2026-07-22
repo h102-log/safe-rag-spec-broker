@@ -18,16 +18,16 @@
 착수 전에 아래 4개를 정하고 각 `→ 결정:` 칸을 채운다. (TDD니까 결정 → 테스트 → 구현)
 
 1. **LLM 선택** — Claude vs OpenAI (CLAUDE.md: 교체 가능). 기본값 하나 정하고 인터페이스로 갈아끼우게 할까? (임베딩 ADR-005의 `Embedder` Protocol 선례를 그대로 따라 `Generator` 인터페이스 하나 두면 됨)
-   → 결정:
+   → 결정: Claude 기본. `Generator` Protocol + `ClaudeGenerator` + `get_generator()` 팩토리 (embed.py 선례). 모델은 config `generation_model`, 기본 `claude-opus-4-8`. 클라이언트는 `__init__`에서 지연 생성. 키는 `.env` `ANTHROPIC_API_KEY`. OpenAI 구현체는 필요할 때 추가(YAGNI).
 
 2. **인용을 답변에 어떻게 박나** — `Retrieved.source`/`page`(이미 검색이 반환 중)를 답변에 어떻게 노출? 후보: (a) 답변 문장 뒤 `[source:page]` 인라인, (b) `{answer, citations[]}` 분리 필드. 분리 필드가 평가·프론트 양쪽에 유리할 가능성.
-   → 결정:
+   → 결정: (b) 분리 필드 `{answer, citations[], trace_id}`. citations는 LLM 출력이 아니라 LLM에 전달한 Retrieved 청크(top_k 전부)에서 서버가 구성 — 지어낸 출처 구조적 차단. 프롬프트로 답변 문장 끝에 citations 순번 `[n]` 표기 유도(가독성용, 강제 검증 없음). 인용 좁히기는 C 페이즈에서 정밀도 측정 후.
 
 3. **근거 부실 / no-context 처리** — 검색 결과가 비었거나 관련 없을 때(예: 최고 score가 임계 이하). "모르겠다/문서에 없음"으로 거절할지, 임계 컷을 둘지. **CLAUDE.md CRITICAL: 파라메트릭 기억으로 지어내기 금지** — 할루시네이션 방지가 이 항목의 핵심.
-   → 결정:
+   → 결정: 임계 컷 포함. 검색 결과가 비었거나 최고 score < config `no_context_threshold`(기본 0.4)면 LLM 미호출, 고정 거절 `{answer: "제공된 문서에서 근거를 찾지 못했습니다.", citations: []}` 반환 — 결정적이라 LLM 없이 테스트 가능. 임계값은 미캘리브레이션(ponytail 주석), C 페이즈에서 튜닝. 이중 방어로 프롬프트에 "문맥에 답 없으면 모른다고 답하라" 유지.
 
 4. **`@observe` 계층** — `generate` span을 기존 `query` trace 아래에 어떻게 중첩? `search` span과 형제로? 프롬프트·토큰·비용까지 계측? **CLAUDE.md CRITICAL: 계측 없는 LLM 호출 금지.** (Langfuse 키 없으면 no-op이어도 데코레이터는 유지)
-   → 결정:
+   → 결정: `generate()`에 `@observe(name="generate", as_type="generation")` — 호출 구조(query→search/generate)상 자동으로 `search`와 형제 span. 입출력은 @observe 자동 캡처. 토큰·비용 포함: langfuse_setup에 no-op 안전 헬퍼 `update_generation(model, usage)` 추가, Anthropic usage만 기록하면 비용은 Langfuse가 단가로 자동 계산.
 
 ## 3. AC (검증 기준)
 

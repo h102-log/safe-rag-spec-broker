@@ -1,0 +1,10 @@
+{
+  "project": "domain-rag-eval-obs",
+  "phase": "1-generate",
+  "steps": [
+    { "step": 0, "name": "observe-generation-helper", "status": "pending" },
+    { "step": 1, "name": "generator", "status": "pending" },
+    { "step": 2, "name": "answer", "status": "pending" },
+    { "step": 3, "name": "api-query", "status": "pending" }
+  ]
+}
