@@ -4,6 +4,10 @@
       "dir": "0-rag-core",
       "status": "completed",
       "completed_at": "2026-07-20T20:32:02+0900"
+    },
+    {
+      "dir": "1-generate",
+      "status": "pending"
     }
   ]
 }
