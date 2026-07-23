@@ -16,3 +16,6 @@ __pycache__/
 
 # Secrets — never commit real keys (.env.example is the template)
 .env
+
+# 로컬 머신 전용 메모
+CLAUDE.local.md
