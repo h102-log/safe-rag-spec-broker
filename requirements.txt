@@ -17,6 +17,9 @@ tiktoken
 psycopg[binary]
 pgvector
 
+# Generate: LLM
+anthropic
+
 # Observability
 langfuse
 
