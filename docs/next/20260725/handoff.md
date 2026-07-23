@@ -8,14 +8,13 @@
 
 ## 1. 지금까지 (2026-07-24 완료분)
 
-- **브랜치 정리 완료(원격 삭제 1건 제외).** 확인 결과 `feat-0-rag-core`(PR #1~#3)·`feat-1-generate`(PR #4) 모두 이미 `safe-rag/main`에 머지돼 있었다. 로컬 main fast-forward + 머지된 로컬 브랜치 2개 삭제 완료. **원격 브랜치 삭제만 미완**(권한 차단): `git push safe-rag --delete feat-0-rag-core feat-1-generate` 직접 실행 필요.
+- **브랜치 정리 완료.** 확인 결과 `feat-0-rag-core`(PR #1~#3)·`feat-1-generate`(PR #4) 모두 이미 `safe-rag/main`에 머지돼 있었다. 로컬 main fast-forward + 머지된 로컬·원격 브랜치 삭제 완료(feat-1-generate 원격은 PR 머지 시 이미 자동 삭제돼 있었음). 남은 브랜치: `main`, `feat-2-eval`뿐.
 - **C 페이즈 결정 6건 확정** — `docs/next/20260724/handoff.md` §3·§4의 `→ 결정:` 칸에 기록. 요지: 1차는 생성축만(Faithfulness·Answer Relevancy), judge=`claude-sonnet-5`(config `judge_model`), Langfuse 스택은 미루고 `create_score`는 no-op 안전, 평가 경로는 `search()`+`generate_answer()` 직접 조합, 데이터셋 jsonl → 결과 `eval/results/latest.json` → ci_gate는 미달 시 exit 1, 골든셋(검색축)은 2차에 프로젝트 docs 30~50문항으로.
 - **`phases/2-eval` step 0~3 설계 완료** — 커밋 `2f70a57`, `feat-2-eval` 브랜치로 safe-rag에 push됨(트래킹 설정됨). step 0 `score-helper`(observability `create_score`) → step 1 `eval-dataset`(질문 jsonl+로더) → step 2 `ragas-runner`(RAGAS 채점·결과 저장·점수 push) → step 3 `ci-gate`(threshold 판정). `phases/index.json`에 `2-eval` pending 등록됨.
 - **전체 pytest 67 passed** — 단, 전역 python이 아니라 **프로젝트 venv**(`.venv/Scripts/python.exe -m pytest`)로 실행해야 한다. 전역 Python312에는 fastapi 등이 없어 collection error가 난다.
 
 ## 2. 사전 체크리스트
 
-- [ ] 원격 머지 브랜치 삭제(위 명령) — 선택이지만 하기로 했던 정리.
 - [ ] step 파일 4개 검토: `phases/2-eval/step0~3.md`. 특히 step 2의 결과 파일 포맷(ci_gate 입력 계약)과 금지사항이 의도와 맞는지.
 - [ ] `ragas`·`langchain-anthropic` 설치(실행 세션에서 requirements에 추가됨): 설치 후 **pyarrow가 25로 올라오면 `pip install --only-binary=:all: "pyarrow<25"` 재적용**(Smart App Control 차단, `CLAUDE.local.md`).
 
