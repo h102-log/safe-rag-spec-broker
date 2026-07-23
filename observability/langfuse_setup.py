@@ -42,6 +42,33 @@ def _resolve_observe():
 observe = _resolve_observe()
 
 
+def update_generation(model: str, input_tokens: int, output_tokens: int) -> None:
+    """활성 Langfuse generation span에 모델명과 토큰 usage를 기록.
+
+    @observe(as_type="generation") 컨텍스트 안에서 호출해야 한다.
+    계측이 no-op(키 미설정/미설치)이면 아무것도 하지 않는다.
+    토큰만 기록하면 비용은 Langfuse가 모델 단가로 자동 계산한다.
+    """
+    if observe is _noop_observe:
+        return
+    try:
+        try:
+            from langfuse import get_client  # v3
+
+            get_client().update_current_generation(
+                model=model,
+                usage_details={"input": input_tokens, "output": output_tokens},
+            )
+        except ImportError:
+            from langfuse.decorators import langfuse_context  # v2
+
+            langfuse_context.update_current_observation(
+                model=model, usage={"input": input_tokens, "output": output_tokens}
+            )
+    except Exception:
+        pass
+
+
 def get_trace_id() -> str | None:
     """활성 Langfuse trace의 id. 계측이 no-op(키 미설정/미설치)이면 None.
 

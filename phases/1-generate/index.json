@@ -2,9 +2,39 @@
   "project": "domain-rag-eval-obs",
   "phase": "1-generate",
   "steps": [
-    { "step": 0, "name": "observe-generation-helper", "status": "pending" },
-    { "step": 1, "name": "generator", "status": "pending" },
-    { "step": 2, "name": "answer", "status": "pending" },
-    { "step": 3, "name": "api-query", "status": "pending" }
-  ]
+    {
+      "step": 0,
+      "name": "observe-generation-helper",
+      "status": "completed",
+      "started_at": "2026-07-23T19:21:53+0900",
+      "summary": "langfuse_setup에 no-op 안전 update_generation(model, input/output 토큰) 추가 (v3 update_current_generation / v2 폴백, 지연 import) + no-op 회귀 테스트 2건(tests/test_langfuse_setup.py)",
+      "completed_at": "2026-07-23T19:26:05+0900"
+    },
+    {
+      "step": 1,
+      "name": "generator",
+      "status": "completed",
+      "started_at": "2026-07-23T19:26:05+0900",
+      "summary": "app/generate/llm.py: Generator Protocol + ClaudeGenerator(지연 import, @observe generation 계측, update_generation usage 기록) + get_generator() 팩토리, config generation_model=claude-opus-4-8, requirements에 anthropic, 계약·지연 import 테스트 2건(tests/test_generate.py)",
+      "completed_at": "2026-07-23T19:29:19+0900"
+    },
+    {
+      "step": 2,
+      "name": "answer",
+      "status": "completed",
+      "started_at": "2026-07-23T19:28:51+0900",
+      "summary": "app/generate/answer.py: generate_answer(no-context 게이트로 LLM 미호출 거절, 번호 매긴 문맥 프롬프트, 서버 구성 citations=retrieved) + Answered/REFUSAL, config no_context_threshold=0.4(ponytail 미캘리브레이션), FakeGenerator 테스트 4건(tests/test_answer.py)",
+      "completed_at": "2026-07-23T19:31:51+0900"
+    },
+    {
+      "step": 3,
+      "name": "api-query",
+      "status": "completed",
+      "started_at": "2026-07-23T19:31:52+0900",
+      "summary": "app/api.py /query가 {answer, citations, trace_id} 반환(results 제거, generator=Depends(get_generator) 주입, api는 search+generate_answer 조합만) + tests/test_query.py 갱신(FakeGenerator 오버라이드, 출처 부분집합·page·no-results assert, 질문을 '보증기간은'으로 조정해 no_context_threshold 0.4 통과). 수동 Swagger 확인은 ANTHROPIC_API_KEY 부재로 건너뜀",
+      "completed_at": "2026-07-23T19:35:48+0900"
+    }
+  ],
+  "created_at": "2026-07-23T19:21:53+0900",
+  "completed_at": "2026-07-23T19:35:48+0900"
 }
