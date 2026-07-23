@@ -7,7 +7,8 @@
       "name": "observe-generation-helper",
       "status": "completed",
       "started_at": "2026-07-23T19:21:53+0900",
-      "summary": "langfuse_setup에 no-op 안전 update_generation(model, input/output 토큰) 추가 (v3 update_current_generation / v2 폴백, 지연 import) + no-op 회귀 테스트 2건(tests/test_langfuse_setup.py)"
+      "summary": "langfuse_setup에 no-op 안전 update_generation(model, input/output 토큰) 추가 (v3 update_current_generation / v2 폴백, 지연 import) + no-op 회귀 테스트 2건(tests/test_langfuse_setup.py)",
+      "completed_at": "2026-07-23T19:26:05+0900"
     },
     {
       "step": 1,
