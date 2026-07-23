@@ -2,9 +2,28 @@
   "project": "domain-rag-eval-obs",
   "phase": "1-generate",
   "steps": [
-    { "step": 0, "name": "observe-generation-helper", "status": "pending" },
-    { "step": 1, "name": "generator", "status": "pending" },
-    { "step": 2, "name": "answer", "status": "pending" },
-    { "step": 3, "name": "api-query", "status": "pending" }
-  ]
+    {
+      "step": 0,
+      "name": "observe-generation-helper",
+      "status": "completed",
+      "started_at": "2026-07-23T19:21:53+0900",
+      "summary": "langfuse_setup에 no-op 안전 update_generation(model, input/output 토큰) 추가 (v3 update_current_generation / v2 폴백, 지연 import) + no-op 회귀 테스트 2건(tests/test_langfuse_setup.py)"
+    },
+    {
+      "step": 1,
+      "name": "generator",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "answer",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "api-query",
+      "status": "pending"
+    }
+  ],
+  "created_at": "2026-07-23T19:21:53+0900"
 }
