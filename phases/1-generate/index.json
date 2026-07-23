@@ -16,7 +16,7 @@
       "status": "completed",
       "started_at": "2026-07-23T19:26:05+0900",
       "summary": "app/generate/llm.py: Generator Protocol + ClaudeGenerator(지연 import, @observe generation 계측, update_generation usage 기록) + get_generator() 팩토리, config generation_model=claude-opus-4-8, requirements에 anthropic, 계약·지연 import 테스트 2건(tests/test_generate.py)",
-      "completed_at": "2026-07-23T19:28:51+0900"
+      "completed_at": "2026-07-23T19:29:19+0900"
     },
     {
       "step": 2,
