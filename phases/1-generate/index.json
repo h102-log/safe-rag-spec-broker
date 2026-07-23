@@ -21,8 +21,10 @@
     {
       "step": 2,
       "name": "answer",
-      "status": "pending",
-      "started_at": "2026-07-23T19:28:51+0900"
+      "status": "completed",
+      "started_at": "2026-07-23T19:28:51+0900",
+      "summary": "app/generate/answer.py: generate_answer(no-context 게이트로 LLM 미호출 거절, 번호 매긴 문맥 프롬프트, 서버 구성 citations=retrieved) + Answered/REFUSAL, config no_context_threshold=0.4(ponytail 미캘리브레이션), FakeGenerator 테스트 4건(tests/test_answer.py)",
+      "completed_at": "2026-07-23T19:31:29+0900"
     },
     {
       "step": 3,
