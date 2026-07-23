@@ -2,6 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.api import app
+from app.generate.llm import Generated, get_generator
 from app.ingest.chunk import Chunk
 from app.ingest.embed import get_embedder
 from app.ingest.index import EMBED_DIM, ensure_schema, index_chunks
@@ -22,6 +23,18 @@ class FakeEmbedder:
                 v[ord(ch) % self.dim] += 1.0
             out.append(v)
         return out
+
+
+class FakeGenerator:
+    """고정 답변 반환 — 실제 LLM 호출 금지(handoff AC). test_answer.py 선례."""
+
+    def generate(self, system: str, prompt: str) -> Generated:
+        return Generated(
+            text="보증기간은 24개월입니다. [1]",
+            model="fake-model",
+            input_tokens=10,
+            output_tokens=5,
+        )
 
 
 CHUNKS = [
@@ -57,17 +70,25 @@ def test_search_returns_relevant_chunk_with_provenance(indexed):
 
 
 @pytest.mark.integration
-def test_query_endpoint_returns_results_and_trace_id(indexed):
-    # 실제 BGE-M3 로드를 피하려 embedder 의존성을 FakeEmbedder로 오버라이드.
+def test_query_endpoint_returns_answer_with_citations(indexed):
+    # 실제 BGE-M3 로드·Claude 클라이언트 생성을 피하려 의존성을 오버라이드.
     app.dependency_overrides[get_embedder] = lambda: FakeEmbedder()
+    app.dependency_overrides[get_generator] = lambda: FakeGenerator()
     try:
         client = TestClient(app)
-        resp = client.post("/query", json={"question": "보증기간이 얼마인가요"})
+        # "보증기간이"가 아니라 "보증기간은": FakeEmbedder 결정적 점수가
+        # 0.46으로 no_context_threshold(0.4)를 넘어야 거절 게이트를 통과한다.
+        resp = client.post("/query", json={"question": "보증기간은 얼마인가요"})
     finally:
         app.dependency_overrides.clear()
 
     assert resp.status_code == 200
     body = resp.json()
-    assert body["results"], "results가 비어있으면 안 된다"
+    assert body["answer"], "answer가 비어있으면 안 된다"
+    assert body["citations"], "citations가 비어있으면 안 된다"
+    # 모든 citation의 source가 이 테스트에서 색인한 소스 집합의 부분집합 — 지어낸 출처 차단.
+    assert {c["source"] for c in body["citations"]} <= {c.source for c in CHUNKS}
+    # 인용 provenance(CLAUDE.md CRITICAL) — page 키 포함.
+    assert all("page" in c for c in body["citations"])
     assert body["trace_id"]
-    assert body["results"][0]["source"] == "doc.docx"
+    assert "results" not in body, "청크 뭉치(results)는 응답에서 제거됐다"
