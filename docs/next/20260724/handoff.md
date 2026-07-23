@@ -27,26 +27,26 @@
 - 두 브랜치는 순차 관계(1-generate가 0-rag-core 위에 쌓임) — 사실상 하나의 선형 히스토리.
 - 후보: (a) `feat-0-rag-core` → main 머지 후 `feat-1-generate` → main 순차 머지, (b) `feat-1-generate` 하나만 main에 머지(0-rag-core 커밋 포함), (c) PR 기반으로 갈지 로컬 머지로 갈지.
 - push 대상 주의: `origin`은 템플릿(push 금지), 실제 repo는 `safe-rag`.
-  → 결정:
+  → 결정: PR 기반 유지. 확인 결과 `feat-0-rag-core`는 이미 PR #1~#3, `feat-1-generate`는 PR #4로 `safe-rag/main`에 머지 완료 상태였다. 남은 정리만 실행: 로컬 main fast-forward, 머지된 로컬·원격 브랜치 삭제. 이후 후속 수정은 별도 `fix/...` 브랜치 → PR.
 
 ## 4. 오늘의 본론 ② — C 페이즈(평가) 논의 (ADR-006 순서: A→C→B)
 
 착수 전 결정이 필요한 항목. 각 `→ 결정:` 칸을 채운 뒤 step 설계로 넘어간다. (TDD: 결정 → 테스트 → 구현)
 
 1. **1차 범위** — ADR-003의 생성축(Faithfulness·Answer Relevancy)은 reference-free라 골든셋 없이 시작 가능. C 페이즈 1차를 생성축으로 한정하고 검색축(Context Precision/Recall)+골든셋은 2차로 미룰까?
-   → 결정:
+   → 결정: 생성축만 1차. 골든셋 없이 즉시 착수 가능하고, ADR-006 취지(즉시 계측→B로 교정)에 부합. 검색축+골든셋은 2차.
 
 2. **골든셋** (검색축용, 1차에 안 넣더라도 방향은 정하기) — 질문-문맥-정답 50~200개, 사람 검수 필수(ADR-003). 어떤 문서집합 기준으로 만들지(현재 색인은 프로젝트 자체 docs 8개뿐 — 평가 대상으로 적절한가? 실제 도메인 문서를 확보할지), 시작 규모는?
-   → 결정:
+   → 결정: 현재 색인된 프로젝트 docs 기준 소규모(30~50문항)로 2차에 구축해 파이프라인부터 검증. 실제 도메인 문서 확보 시 교체.
 
 3. **평가용 judge LLM** — RAGAS의 judge를 뭘로? 생성과 같은 Claude면 자기평가 편향 우려, 다른 모델이면 비용·키 관리 추가. (생성 모델은 config `generation_model=claude-opus-4-8`)
-   → 결정:
+   → 결정: 생성과 다른 Claude 모델 `claude-sonnet-5` (config `judge_model`로 추가). 기존 ANTHROPIC_API_KEY 재사용으로 키 관리 추가 없음, 동일-모델 자기평가는 회피. 같은 계열 편향은 감수(필요 시 OpenAI judge로 교체 가능).
 
 4. **Langfuse 스택 기동 여부** — ADR-004는 RAGAS 점수를 `create_score`로 trace에 push. 그런데 docker-compose는 pgvector만 있음(ponytail: Langfuse 스택은 관측 페이즈에서 추가). C 페이즈에서 Langfuse self-host를 띄울지, 아니면 점수 push는 키 없으면 no-op(기존 langfuse_setup 선례)으로 두고 스택은 뒤로 미룰지?
-   → 결정:
+   → 결정: 스택 기동은 관측 페이즈로 미룸. 점수 push 코드(`create_score`)는 넣되 키 없으면 no-op(langfuse_setup 선례). C 페이즈는 점수 산출 자체에 집중.
 
 5. **CLI·게이트 계약** — CLAUDE.md 커맨드 계약: `python -m eval.ragas_run --dataset eval/golden`(지표 → Langfuse), `python -m eval.ci_gate --threshold faithfulness=0.9`(회귀 게이트). 데이터셋 파일 포맷(jsonl?), ragas_run이 /query를 직접 호출할지 검색·생성 함수를 직접 조합할지, ci_gate의 실패 기준.
-   → 결정:
+   → 결정: 데이터셋은 jsonl(`eval/golden/questions.jsonl`, 1차는 question만). ragas_run은 `search()`+`generate_answer()` 직접 조합(서버 불필요, FakeGenerator 주입 가능, @observe 계측은 함수에 붙어 있어 그대로 동작). 결과는 `eval/results/latest.json` 저장. ci_gate는 `--threshold 지표=값`(복수 허용) 파싱 → 결과 파일 비교 → 미달 시 사유 출력 + exit 1.
 
 ## 5. 결정 후 — step 설계
 

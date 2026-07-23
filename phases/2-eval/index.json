@@ -1,0 +1,10 @@
+{
+  "project": "domain-rag-eval-obs",
+  "phase": "2-eval",
+  "steps": [
+    { "step": 0, "name": "score-helper", "status": "pending" },
+    { "step": 1, "name": "eval-dataset", "status": "pending" },
+    { "step": 2, "name": "ragas-runner", "status": "pending" },
+    { "step": 3, "name": "ci-gate", "status": "pending" }
+  ]
+}
