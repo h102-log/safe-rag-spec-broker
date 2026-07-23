@@ -32,7 +32,7 @@
       "status": "completed",
       "started_at": "2026-07-23T19:31:52+0900",
       "summary": "app/api.py /query가 {answer, citations, trace_id} 반환(results 제거, generator=Depends(get_generator) 주입, api는 search+generate_answer 조합만) + tests/test_query.py 갱신(FakeGenerator 오버라이드, 출처 부분집합·page·no-results assert, 질문을 '보증기간은'으로 조정해 no_context_threshold 0.4 통과). 수동 Swagger 확인은 ANTHROPIC_API_KEY 부재로 건너뜀",
-      "completed_at": "2026-07-23T19:35:19+0900"
+      "completed_at": "2026-07-23T19:35:48+0900"
     }
   ],
   "created_at": "2026-07-23T19:21:53+0900"
