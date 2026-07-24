@@ -6,6 +6,21 @@
 
 ---
 
+## 0. 내일(7/25) 할 일 — 요약
+
+2-eval 실행은 끝났다(§3). 남은 것 세 가지, 순서대로:
+
+1. **`eval/golden/questions.jsonl` 16문항 검수** — 각 질문이 색인 docs(PRD·ARCHITECTURE·ADR·wiki)에서 답변 가능한지 직접 확인. 이상한 문항은 수정 후 `pytest tests/test_eval_dataset.py`로 회귀 확인.
+2. **실평가 스모크 1회** (§4) — pgvector 5433 기동(`CLAUDE.local.md`) 후:
+   ```bash
+   .venv/Scripts/python.exe -m eval.ragas_run --dataset eval/golden
+   .venv/Scripts/python.exe -m eval.ci_gate --threshold faithfulness=0.9
+   ```
+   실 LLM 호출(질문 수만큼 비용), 첫 실행은 BGE-M3 로드로 수십 초. 지표가 낮아도 정상 — B 페이즈 베이스라인(ADR-006).
+3. **`feat-2-eval` → main PR** (§5) — 검수·스모크 통과 후. 선례: PR #1~#4.
+
+환경은 준비돼 있음: ragas 0.4.3 설치·SAC 차단 해결(§2)·전체 pytest 83 passed. 단, `pip install -r requirements.txt`를 다시 돌리면 pyarrow/torch/regex가 차단 버전으로 올라올 수 있음 — 증상 나오면 `CLAUDE.local.md`의 다운그레이드 재적용.
+
 ## 1. 지금까지 (2026-07-24 완료분)
 
 - **브랜치 정리 완료.** 확인 결과 `feat-0-rag-core`(PR #1~#3)·`feat-1-generate`(PR #4) 모두 이미 `safe-rag/main`에 머지돼 있었다. 로컬 main fast-forward + 머지된 로컬·원격 브랜치 삭제 완료(feat-1-generate 원격은 PR 머지 시 이미 자동 삭제돼 있었음). 남은 브랜치: `main`, `feat-2-eval`뿐.
