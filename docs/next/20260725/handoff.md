@@ -13,10 +13,10 @@
 - **`phases/2-eval` step 0~3 설계 완료** — 커밋 `2f70a57`, `feat-2-eval` 브랜치로 safe-rag에 push됨(트래킹 설정됨). step 0 `score-helper`(observability `create_score`) → step 1 `eval-dataset`(질문 jsonl+로더) → step 2 `ragas-runner`(RAGAS 채점·결과 저장·점수 push) → step 3 `ci-gate`(threshold 판정). `phases/index.json`에 `2-eval` pending 등록됨.
 - **전체 pytest 67 passed** — 단, 전역 python이 아니라 **프로젝트 venv**(`.venv/Scripts/python.exe -m pytest`)로 실행해야 한다. 전역 Python312에는 fastapi 등이 없어 collection error가 난다.
 
-## 2. 사전 체크리스트
+## 2. 사전 체크리스트 (2026-07-24 완료)
 
-- [ ] step 파일 4개 검토: `phases/2-eval/step0~3.md`. 특히 step 2의 결과 파일 포맷(ci_gate 입력 계약)과 금지사항이 의도와 맞는지.
-- [ ] `ragas`·`langchain-anthropic` 설치(실행 세션에서 requirements에 추가됨): 설치 후 **pyarrow가 25로 올라오면 `pip install --only-binary=:all: "pyarrow<25"` 재적용**(Smart App Control 차단, `CLAUDE.local.md`).
+- [x] step 파일 4개 검토: `phases/2-eval/step0~3.md`. 참조 심볼 전부 실코드와 대조 확인, step 2↔3 결과 파일 계약(`metrics` 키) 일치. 단 하나 수정: step 2 requirements에 **`langchain-community<0.4` 핀 추가** — ragas 0.4.3이 community 0.4에서 제거된 `chat_models.vertexai`를 최상단 import해서 핀 없이는 `import ragas`가 깨짐(step2.md에 사유 명기).
+- [x] `ragas` 0.4.3·`langchain-anthropic` 1.5.1 설치 완료. pyarrow는 24.0.0 유지돼 재적용 불필요. 대신 **SAC가 torch 2.13.0·regex 2026.7.19를 새로 차단**(7/23까진 잘 돌던 파일 — 클라우드 평판 갱신) → `torch==2.12.1`+`torchvision==0.27.1`+`regex==2026.6.28`로 다운그레이드 해결(`CLAUDE.local.md` 갱신). 전체 pytest **67 passed** 재확인.
 
 ## 3. 본론 ① — 2-eval 실행 (harness 워크플로우 E)
 

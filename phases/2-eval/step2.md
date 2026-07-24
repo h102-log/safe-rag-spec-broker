@@ -75,7 +75,9 @@ judge_model: str = "claude-sonnet-5"
 
 ### 3. `requirements.txt` 수정
 
-`# Eval: RAGAS` 섹션으로 `ragas`, `langchain-anthropic` 추가.
+`# Eval: RAGAS` 섹션으로 `ragas`, `langchain-anthropic`, `langchain-community<0.4` 추가.
+
+- `langchain-community<0.4` 핀 이유: ragas 0.4.3이 최상단에서 `langchain_community.chat_models.vertexai`를 import하는데 이 모듈은 community 0.4에서 제거됨 — 핀 없으면 `import ragas` 자체가 깨진다(2026-07-24 확인, community 0.3.31은 langchain-core 1.x와 공존 가능).
 
 ### 4. 테스트 `tests/test_ragas_run.py` (신규)
 
