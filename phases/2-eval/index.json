@@ -32,7 +32,7 @@
       "status": "completed",
       "summary": "eval/ci_gate.py 신설 — parse_thresholds(지표=값 파싱, 형식 오류 예외)·check(집계 metrics vs 임계값 위반 사유 목록, 지표 없음=위반)·main(--threshold 복수/반복 extend + --results 기본 eval/results/latest.json, 결과 파일 읽어 metrics 판정; 파일 없음·지표 없음=보수적 exit 1, LLM/DB/ragas 무의존), stdout 메시지는 cp949 콘솔 대비 ASCII 대시; tests/test_ci_gate.py 9개(parse 3 + check 3 + main 3)",
       "started_at": "2026-07-24T22:06:14+0900",
-      "completed_at": "2026-07-24T22:09:08+0900"
+      "completed_at": "2026-07-24T22:10:04+0900"
     }
   ],
   "created_at": "2026-07-24T21:55:16+0900"
