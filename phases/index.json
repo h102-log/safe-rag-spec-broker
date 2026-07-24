@@ -12,7 +12,8 @@
     },
     {
       "dir": "2-eval",
-      "status": "pending"
+      "status": "completed",
+      "completed_at": "2026-07-24T22:10:04+0900"
     }
   ]
 }
