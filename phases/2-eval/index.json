@@ -13,7 +13,10 @@
     {
       "step": 1,
       "name": "eval-dataset",
-      "status": "pending"
+      "status": "completed",
+      "summary": "eval 레이어 신설 — eval/golden/questions.jsonl(docs 근거 생성축 질문 16개, question 필드만), eval/dataset.py load_questions(디렉토리→questions.jsonl, 빈 줄 skip, 파싱 실패는 예외), tests/test_eval_dataset.py 4개(로더 3 + golden 회귀 1)",
+      "started_at": "2026-07-24T21:56:40+0900",
+      "completed_at": "2026-07-24T21:58:39+0900"
     },
     {
       "step": 2,
