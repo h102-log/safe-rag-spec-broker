@@ -17,5 +17,8 @@ __pycache__/
 # Secrets — never commit real keys (.env.example is the template)
 .env
 
+# eval 실행 산출물 — 커밋하지 않는다
+eval/results/
+
 # 로컬 머신 전용 메모
 CLAUDE.local.md

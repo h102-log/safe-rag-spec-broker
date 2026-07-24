@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     database_url: str = "postgresql://postgres:postgres@localhost:5432/postgres"
     embedding_model: str = "BAAI/bge-m3"
     generation_model: str = "claude-opus-4-8"
+    judge_model: str = "claude-sonnet-5"
     # ponytail: 임계값 미캘리브레이션 — BGE-M3 cosine 분포 실측 전. C 페이즈(RAGAS)에서 튜닝.
     no_context_threshold: float = 0.4
 

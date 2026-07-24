@@ -21,7 +21,10 @@
     {
       "step": 2,
       "name": "ragas-runner",
-      "status": "pending"
+      "status": "completed",
+      "summary": "eval/ragas_run.py 신설 — build_samples(search()+generate_answer() 조합, @observe eval_query span·get_trace_id 수집, generator/searcher 주입 가능), score_samples(ragas 0.4.3 evaluate로 Faithfulness·ResponseRelevancy, judge=ChatAnthropic(judge_model), BGE-M3→langchain Embeddings 어댑터, ragas·langchain_anthropic·datasets 지연 import), main(--dataset→trace push+eval/results/latest.json+요약); config judge_model=claude-sonnet-5, requirements Eval 섹션(langchain-community<0.4 핀), .gitignore eval/results/, tests/test_ragas_run.py 2개(지연 import + fake build_samples)",
+      "started_at": "2026-07-24T21:59:05+0900",
+      "completed_at": "2026-07-24T22:05:29+0900"
     },
     {
       "step": 3,

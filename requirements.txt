@@ -23,6 +23,13 @@ anthropic
 # Observability
 langfuse
 
+# Eval: RAGAS
+ragas
+langchain-anthropic
+# ragas 0.4.3이 langchain_community.chat_models.vertexai를 최상단 import하는데
+# 이 모듈은 community 0.4에서 제거됨 — 핀 없으면 import ragas 자체가 깨진다(2026-07-24 확인).
+langchain-community<0.4
+
 # Tests
 pytest
 httpx
