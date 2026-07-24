@@ -87,3 +87,23 @@ def get_trace_id() -> str | None:
             return langfuse_context.get_current_trace_id()
     except Exception:
         return None
+
+
+def create_score(*, trace_id: str, name: str, value: float) -> None:
+    """지정한 Langfuse trace에 평가 점수를 기록 (ADR-004).
+
+    계측이 no-op(키 미설정/미설치)이면 아무것도 하지 않는다.
+    """
+    if observe is _noop_observe:
+        return
+    try:
+        try:
+            from langfuse import get_client  # v3
+
+            get_client().create_score(trace_id=trace_id, name=name, value=value)
+        except ImportError:
+            from langfuse import Langfuse  # v2
+
+            Langfuse().score(trace_id=trace_id, name=name, value=value)
+    except Exception:
+        pass

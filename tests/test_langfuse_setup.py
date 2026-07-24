@@ -10,3 +10,8 @@ def test_update_generation_noop_silent(monkeypatch):
 def test_get_trace_id_noop_returns_none(monkeypatch):
     monkeypatch.setattr(langfuse_setup, "observe", langfuse_setup._noop_observe)
     assert langfuse_setup.get_trace_id() is None
+
+
+def test_create_score_noop_silent(monkeypatch):
+    monkeypatch.setattr(langfuse_setup, "observe", langfuse_setup._noop_observe)
+    langfuse_setup.create_score(trace_id="t", name="faithfulness", value=0.9)  # 예외 없으면 통과

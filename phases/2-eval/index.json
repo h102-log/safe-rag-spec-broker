@@ -2,9 +2,28 @@
   "project": "domain-rag-eval-obs",
   "phase": "2-eval",
   "steps": [
-    { "step": 0, "name": "score-helper", "status": "pending" },
-    { "step": 1, "name": "eval-dataset", "status": "pending" },
-    { "step": 2, "name": "ragas-runner", "status": "pending" },
-    { "step": 3, "name": "ci-gate", "status": "pending" }
-  ]
+    {
+      "step": 0,
+      "name": "score-helper",
+      "status": "completed",
+      "summary": "observability/langfuse_setup.py에 create_score(trace_id,name,value) 추가 — no-op 가드 + v3(get_client().create_score)/v2(Langfuse().score) 지연 import + 예외 삼킴, no-op 회귀 테스트 1개 추가",
+      "started_at": "2026-07-24T21:55:16+0900"
+    },
+    {
+      "step": 1,
+      "name": "eval-dataset",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "ragas-runner",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "ci-gate",
+      "status": "pending"
+    }
+  ],
+  "created_at": "2026-07-24T21:55:16+0900"
 }
