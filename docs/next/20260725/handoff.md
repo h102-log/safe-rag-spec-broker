@@ -18,18 +18,22 @@
 - [x] step 파일 4개 검토: `phases/2-eval/step0~3.md`. 참조 심볼 전부 실코드와 대조 확인, step 2↔3 결과 파일 계약(`metrics` 키) 일치. 단 하나 수정: step 2 requirements에 **`langchain-community<0.4` 핀 추가** — ragas 0.4.3이 community 0.4에서 제거된 `chat_models.vertexai`를 최상단 import해서 핀 없이는 `import ragas`가 깨짐(step2.md에 사유 명기).
 - [x] `ragas` 0.4.3·`langchain-anthropic` 1.5.1 설치 완료. pyarrow는 24.0.0 유지돼 재적용 불필요. 대신 **SAC가 torch 2.13.0·regex 2026.7.19를 새로 차단**(7/23까진 잘 돌던 파일 — 클라우드 평판 갱신) → `torch==2.12.1`+`torchvision==0.27.1`+`regex==2026.6.28`로 다운그레이드 해결(`CLAUDE.local.md` 갱신). 전체 pytest **67 passed** 재확인.
 
-## 3. 본론 ① — 2-eval 실행 (harness 워크플로우 E)
+## 3. 본론 ① — 2-eval 실행 보고 (2026-07-24 완료)
 
-```bash
-.venv/Scripts/python.exe scripts/execute.py 2-eval        # 순차 실행 (venv python 필수)
-.venv/Scripts/python.exe scripts/execute.py 2-eval --push # 실행 후 push
-```
+`.venv/Scripts/python.exe scripts/execute.py 2-eval`로 4 step 전부 성공 (21:55~22:10, exit 0, 재시도 0회).
 
-- execute.py가 `feat-2-eval` 브랜치를 재사용한다(이미 존재·push됨).
-- step별 AC(pytest)는 실 LLM·DB·ragas 없이 통과하도록 설계됨 — 실행 자체에 API 키·DB 불필요.
-- step 1의 산출물 `eval/golden/questions.jsonl`은 **사람 검수 대상** — 실행 후 질문 10~20개가 현재 색인 docs에서 답변 가능한지 직접 훑어볼 것.
+| step | 산출물 요지 | 커밋 |
+|------|------------|------|
+| 0 score-helper | `create_score(trace_id,name,value)` — no-op 가드 + v3/v2 지연 import + 예외 삼킴 | `9d81632` |
+| 1 eval-dataset | `eval/golden/questions.jsonl` 16문항(question만) + `eval/dataset.py` `load_questions` + 테스트 4개 | `6978c40` |
+| 2 ragas-runner | `eval/ragas_run.py`(build_samples/score_samples/main), config `judge_model`, requirements Eval 섹션(`langchain-community<0.4` 핀 포함), `.gitignore` eval/results/ | `c01966e` |
+| 3 ci-gate | `eval/ci_gate.py`(parse_thresholds/check/main, 보수적 exit 1) + 테스트 9개 | `761a342` |
 
-## 4. 본론 ② — 실평가 1회 돌려보기 (스모크)
+- 검증: 전체 pytest **83 passed**(기존 67 + 신규 16), 4 deselected(integration).
+- `questions.jsonl` 16문항 1차 훑기 결과 전부 색인 docs(ADR·ARCHITECTURE·PRD·wiki) 근거 질문으로 판단 — **최종 사람 검수는 남음**.
+- 상세 step summary는 `phases/2-eval/index.json` 참조.
+
+## 4. 본론 ② — 실평가 1회 돌려보기 (스모크) ← 다음 세션 시작점
 
 step 실행이 끝나면 실제 평가를 한 번 돌려 파이프라인을 검증한다. 필요 조건:
 
